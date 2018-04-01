@@ -3,7 +3,7 @@ from sqlite3 import dbapi2 as sqlite3
 from hashlib import md5
 from datetime import datetime
 from flask import Flask, request, session, url_for, redirect, \
-     render_template, abort, g, flash, _app_ctx_stack
+    render_template, abort, g, flash, _app_ctx_stack
 from werkzeug import check_password_hash, generate_password_hash
 
 
@@ -54,17 +54,25 @@ def initdb_command():
 
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    status=None
+    status = None
     if request.method == 'POST':
         url_product = request.form['url_product']
         current_price = request.form['current_price']
         desired_price = request.form['desired_price']
         email = request.form['email']
-        query_str = "INSERT INTO product(url_product, current_price, desired_price, email) VALUES (%s, %s, %s, %s);" % (url_product, current_price, desired_price, email)
+        query_str = "INSERT INTO product(url_product, current_price, \
+        desired_price, email) VALUES ('%s', '%s', '%s', '%s');" % (
+            url_product, current_price, desired_price, email)
         try:
             print(query_str)
-            query_status = query_db(query_str)
-            status = str(query_status)
+
+            db = get_db()
+            db.execute(query_str)
+            db.commit()
+
+            status = "We have received your request successful. \
+            If the price meet your desired value, \
+            we will send a notification to your email."
         except Exception as e:
             status = "Opps! We cannot complete the work for you. " + str(e)
         # return redirect(url_for('timeline'))
