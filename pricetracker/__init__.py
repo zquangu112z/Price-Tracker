@@ -1,0 +1,1 @@
+from .pricetracker import app

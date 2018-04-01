@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}Price Tracking{% endblock %}
+{% block body %}
+  <h2>Let me help you tracking the price!</h2>
+  {% if status %}<div class="error"><strong>Status:</strong> {{ status }}</div>{% endif %}
+  <form action="" method="post">
+    <dl>
+      <dt>Product's URL:
+      <dd><input type="text" name="url_product" size="30" value="{{ request.form.url_product }}">
+
+      <dt>Current Price:
+      <dd><input type="text" name="current_price" size="30" value="{{ request.form.current_price }}">
+
+      <dt>Desired Price:
+      <dd><input type="text" name="desired_price" size="30" value="{{ request.form.desired_price }}">
+
+      <dt>Email:
+      <dd><input type="text" name="email" size="30" value="{{ request.form.email }}">
+    </dl>
+    <div class="actions"><input type="submit" value="Submit"></div>
+  </form>
+{% endblock %}
+

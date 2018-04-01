@@ -1,0 +1,3 @@
+graft src/price_tracking/templates
+graft src/price_tracking/static
+include src/price_tracking/schema.sql
