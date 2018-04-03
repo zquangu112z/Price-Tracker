@@ -14,6 +14,7 @@ DEBUG = True
 SECRET_KEY = b'_5#yjkhdjkfhasd2L"F4Q8z\n\xec]/'
 
 # create our little application :)
+# app = Flask('pricetrackersdf')
 app = Flask('pricetracker')
 app.config.from_object(__name__)
 

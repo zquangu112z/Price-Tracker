@@ -8,3 +8,4 @@ sandbox/
 .subl
 .cache
 .benchmarks
+.eggs/
