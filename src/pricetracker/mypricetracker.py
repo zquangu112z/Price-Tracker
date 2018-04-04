@@ -8,13 +8,12 @@ from werkzeug import check_password_hash, generate_password_hash
 
 
 # configuration
-DATABASE = '/tmp/pricetracker.db'
+DATABASE = '/Users/kilia/Desktop/pricetracker.db'
 PER_PAGE = 30
 DEBUG = True
 SECRET_KEY = b'_5#yjkhdjkfhasd2L"F4Q8z\n\xec]/'
 
-# create our little application :)
-# app = Flask('pricetrackersdf')
+
 app = Flask('pricetracker')
 app.config.from_object(__name__)
 
@@ -53,17 +52,26 @@ def initdb_command():
     print('Initialized the database.')
 
 
+def get_author_id():
+    user_id = session['user_id']
+    return user_id
+
+
 @app.route('/home', methods=['GET', 'POST'])
 def home():
+    if not g.user:
+        return redirect(url_for('login'))
+
     status = None
     if request.method == 'POST':
+        author_id = get_author_id()
         url_product = request.form['url_product']
         current_price = request.form['current_price']
         desired_price = request.form['desired_price']
-        email = request.form['email']
-        query_str = "INSERT INTO product(url_product, current_price, \
-        desired_price, email) VALUES ('%s', '%s', '%s', '%s');" % (
-            url_product, current_price, desired_price, email)
+        # email = request.form['email']
+        query_str = "INSERT INTO product(author_id, url_product, current_price, \
+        desired_price) VALUES ('%s', '%s', '%s', '%s');" % (
+            author_id, url_product, current_price, desired_price)
         try:
             print(query_str)
 
@@ -87,6 +95,21 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 
+@app.before_request
+def before_request():
+    g.user = None
+    if 'user_id' in session:
+        g.user = query_db('select * from user where user_id = ?',
+                          [session['user_id']], one=True)
+
+
+def get_user_id(username):
+    """Convenience method to look up the id for a username."""
+    rv = query_db('select user_id from user where username = ?',
+                  [username], one=True)
+    return rv[0] if rv else None
+
+
 def format_datetime(timestamp):
     """Format a timestamp for display."""
     return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
@@ -100,9 +123,92 @@ def gravatar_url(email, size=80):
 
 @app.route('/')
 def root_page():
-    return redirect(url_for('home'))
+    if g.user:
+        return redirect(url_for('home'))
+    else:
+        return redirect(url_for('login'))
 
-# todo: list product arcording to email
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Logs the user in."""
+    if g.user:
+        return redirect(url_for('home'))
+    error = None
+    if request.method == 'POST':
+        user = query_db('''select * from user where
+            username = ?''', [request.form['username']], one=True)
+        if user is None:
+            error = 'Invalid username'
+        elif not check_password_hash(user['pw_hash'],
+                                     request.form['password']):
+            error = 'Invalid password'
+        else:
+            flash('You were logged in')
+            session['user_id'] = user['user_id']
+            return redirect(url_for('home'))
+    return render_template('login.html', error=error)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Registers the user."""
+    if g.user:
+        return redirect(url_for('home'))
+    error = None
+    if request.method == 'POST':
+        if not request.form['username']:
+            error = 'You have to enter a username'
+        elif not request.form['email'] or \
+                '@' not in request.form['email']:
+            error = 'You have to enter a valid email address'
+        elif not request.form['password']:
+            error = 'You have to enter a password'
+        elif request.form['password'] != request.form['password2']:
+            error = 'The two passwords do not match'
+        elif get_user_id(request.form['username']) is not None:
+            error = 'The username is already taken'
+        else:
+            db = get_db()
+            db.execute('''insert into user (
+              username, email, pw_hash) values (?, ?, ?)''',
+                       [request.form['username'], request.form['email'],
+                        generate_password_hash(request.form['password'])])
+            db.commit()
+            flash('You were successfully registered and can login now')
+            return redirect(url_for('login'))
+    return render_template('register.html', error=error)
+
+
+@app.route('/<username>')
+def user_following(username):
+    return render_template('nothing.html')
+    """todo: list following products"""
+    # profile_user = query_db('select * from user where username = ?',
+    #                         [username], one=True)
+    # if profile_user is None:
+    #     abort(404)
+    # followed = False
+    # if g.user:
+    #     followed = query_db('''select 1 from follower where
+    #         follower.who_id = ? and follower.whom_id = ?''',
+    #                         [session['user_id'], profile_user['user_id']],
+    #                         one=True) is not None
+    # return render_template('timeline.html', messages=query_db('''
+    #         select message.*, user.* from message, user where
+    #         user.user_id = message.author_id and user.user_id = ?
+    #         order by message.pub_date desc limit ?''',
+    #                        [profile_user['user_id'], PER_PAGE]),
+    #                        followed=followed,
+    #                        profile_user=profile_user)
+
+
+@app.route('/logout')
+def logout():
+    """Logs the user out."""
+    flash('You were logged out')
+    session.pop('user_id', None)
+    return redirect(url_for('login'))
 
 
 # add some filters to jinja
