@@ -24,7 +24,7 @@ input[type="password"] {
     color: #105751;
 }
 
-input[type="submit"] {
+input[type="submit"], button {
     background: #105751;
     border: 1px solid #073B36;
     padding: 1px 3px;
@@ -35,6 +35,7 @@ input[type="submit"] {
     -webkit-border-radius: 2px;
     color: white;
 }
+
 
 div.page {
     background: white;
