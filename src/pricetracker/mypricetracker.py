@@ -79,9 +79,9 @@ def home():
             db.execute(query_str)
             db.commit()
 
-            status = "We have received your request successful. \
+            flash("We have received your request successful. \
             If the price meet your desired value, \
-            we will send a notification to your email."
+            we will send a notification to your email.")
         except Exception as e:
             status = "Opps! We cannot complete the work for you. " + str(e)
         # return redirect(url_for('timeline'))
@@ -180,27 +180,22 @@ def register():
     return render_template('register.html', error=error)
 
 
-@app.route('/<username>')
-def user_following(username):
-    return render_template('nothing.html')
-    """todo: list following products"""
-    # profile_user = query_db('select * from user where username = ?',
-    #                         [username], one=True)
-    # if profile_user is None:
-    #     abort(404)
-    # followed = False
-    # if g.user:
-    #     followed = query_db('''select 1 from follower where
-    #         follower.who_id = ? and follower.whom_id = ?''',
-    #                         [session['user_id'], profile_user['user_id']],
-    #                         one=True) is not None
-    # return render_template('timeline.html', messages=query_db('''
-    #         select message.*, user.* from message, user where
-    #         user.user_id = message.author_id and user.user_id = ?
-    #         order by message.pub_date desc limit ?''',
-    #                        [profile_user['user_id'], PER_PAGE]),
-    #                        followed=followed,
-    #                        profile_user=profile_user)
+@app.route('/following')
+def user_following():
+    """ List user's following products"""
+    if not g.user:
+        return redirect(url_for('login'))
+
+    user_id = get_author_id()
+    if user_id:
+        following_product = query_db(
+            "SELECT * FROM product as p where p.author_id=?",
+            [user_id])
+        print(">>>>>>>>>", len(following_product))
+    else:
+        redirect(url_for('login'))
+    return render_template('following.html',
+                           following_products=following_product)
 
 
 @app.route('/logout')
