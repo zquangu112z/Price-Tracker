@@ -1,3 +1,0 @@
-pip install --editable .
-export FLASK_APP=pricetracker
-flask initdb && flask run
