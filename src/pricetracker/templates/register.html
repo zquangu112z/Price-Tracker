@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Sign Up{% endblock %}
 {% block body %}
-  <h2>Sign Up</h2>
+  <h2>Welcome to PriceTracker!</h2>
   {% if error %}<div class="error"><strong>Error:</strong> {{ error }}</div>{% endif %}
   <form action="" method="post">
     <dl>
@@ -14,6 +14,9 @@
       <dt>Password <small>(repeat)</small>:
       <dd><input type="password" name="password2" size="30">
     </dl>
-    <div class="actions"><input type="submit" value="Sign Up"></div>
+    <div class="actions">
+      <input type="submit" value="Sign Up">
+      <button type="button" onclick="window.location.href='{{ url_for('login') }}';">Sign In</button>
+    </div>
   </form>
 {% endblock %}
