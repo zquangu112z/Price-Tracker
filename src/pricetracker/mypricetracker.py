@@ -5,17 +5,25 @@ from datetime import datetime
 from flask import Flask, request, session, url_for, redirect, \
     render_template, abort, g, flash, _app_ctx_stack
 from werkzeug import check_password_hash, generate_password_hash
+from celery import Celery
+from flask_mail import Mail, Message
 
 
-# configuration
-DATABASE = '/Users/kilia/Desktop/pricetracker.db'
-PER_PAGE = 30
-DEBUG = True
-SECRET_KEY = b'_5#yjkhdjkfhasd2L"F4Q8z\n\xec]/'
+app = Flask(__name__)
+app.config.from_object("config")
+
+mail = Mail(app)
+
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
-app = Flask('pricetracker')
-app.config.from_object(__name__)
+@celery.task
+def send_async_email(msg):
+    """Background task to send an email with Flask-Mail."""
+    with app.app_context():
+        mail.send(msg)
+        print(">>>>>>>>>>>>>>>>a new message<<<<<<<<<<<<<<<<")
 
 
 def get_db():
@@ -79,9 +87,17 @@ def home():
             db.execute(query_str)
             db.commit()
 
-            flash("We have received your request successful. \
+            success_msg = "We have received your request successful. \
             If the price meet your desired value, \
-            we will send a notification to your email.")
+            we will send a notification to your email."
+
+            flash(success_msg)
+
+            msg = Message(success_msg,
+                          sender=app.config['ADMIN'],
+                          recipients=g.user['email'])
+            # send_async_email(msg)
+
         except Exception as e:
             status = "Opps! We cannot complete the work for you. " + str(e)
         # return redirect(url_for('timeline'))
@@ -208,3 +224,7 @@ def logout():
 
 # add some filters to jinja
 app.jinja_env.filters['datetimeformat'] = format_datetime
+
+
+if __name__ == '__main__':
+    app.run()
