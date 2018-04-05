@@ -1,68 +1,17 @@
-import time
-from sqlite3 import dbapi2 as sqlite3
-from hashlib import md5
-from datetime import datetime
-from flask import Flask, request, session, url_for, redirect, \
-    render_template, abort, g, flash, _app_ctx_stack
+from flask import request, session, url_for, redirect, \
+    render_template, g, flash
 from werkzeug import check_password_hash, generate_password_hash
-from celery import Celery
-from flask_mail import Mail, Message
 
 
-app = Flask(__name__)
-app.config.from_object("config")
-
-mail = Mail(app)
-
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+from .base import app, get_author_id, get_db, get_user_id, query_db
 
 
-@celery.task
-def send_async_email(msg):
-    """Background task to send an email with Flask-Mail."""
-    with app.app_context():
-        mail.send(msg)
-        print(">>>>>>>>>>>>>>>>a new message<<<<<<<<<<<<<<<<")
-
-
-def get_db():
-    """Opens a new database connection if there is none yet for the
-    current application context.
-    """
-    top = _app_ctx_stack.top
-    if not hasattr(top, 'sqlite_db'):
-        top.sqlite_db = sqlite3.connect(app.config['DATABASE'])
-        top.sqlite_db.row_factory = sqlite3.Row
-    return top.sqlite_db
-
-
-@app.teardown_appcontext
-def close_database(exception):
-    """Closes the database again at the end of the request."""
-    top = _app_ctx_stack.top
-    if hasattr(top, 'sqlite_db'):
-        top.sqlite_db.close()
-
-
-def init_db():
-    """Initializes the database."""
-    db = get_db()
-    with app.open_resource('schema.sql', mode='r') as f:
-        db.cursor().executescript(f.read())
-    db.commit()
-
-
-@app.cli.command('initdb')
-def initdb_command():
-    """Creates the database tables."""
-    init_db()
-    print('Initialized the database.')
-
-
-def get_author_id():
-    user_id = session['user_id']
-    return user_id
+@app.route('/')
+def root_page():
+    if g.user:
+        return redirect(url_for('home'))
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/home', methods=['GET', 'POST'])
@@ -93,56 +42,10 @@ def home():
 
             flash(success_msg)
 
-            msg = Message(success_msg,
-                          sender=app.config['ADMIN'],
-                          recipients=g.user['email'])
-            # send_async_email(msg)
-
         except Exception as e:
             status = "Opps! We cannot complete the work for you. " + str(e)
         # return redirect(url_for('timeline'))
     return render_template('home.html', status=status)
-
-
-def query_db(query, args=(), one=False):
-    """Queries the database and returns a list of dictionaries."""
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    return (rv[0] if rv else None) if one else rv
-
-
-@app.before_request
-def before_request():
-    g.user = None
-    if 'user_id' in session:
-        g.user = query_db('select * from user where user_id = ?',
-                          [session['user_id']], one=True)
-
-
-def get_user_id(username):
-    """Convenience method to look up the id for a username."""
-    rv = query_db('select user_id from user where username = ?',
-                  [username], one=True)
-    return rv[0] if rv else None
-
-
-def format_datetime(timestamp):
-    """Format a timestamp for display."""
-    return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
-
-
-def gravatar_url(email, size=80):
-    """Return the gravatar image for the given email address."""
-    return 'https://www.gravatar.com/avatar/%s?d=identicon&s=%d' % \
-        (md5(email.strip().lower().encode('utf-8')).hexdigest(), size)
-
-
-@app.route('/')
-def root_page():
-    if g.user:
-        return redirect(url_for('home'))
-    else:
-        return redirect(url_for('login'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -220,11 +123,3 @@ def logout():
     flash('You were logged out')
     session.pop('user_id', None)
     return redirect(url_for('login'))
-
-
-# add some filters to jinja
-app.jinja_env.filters['datetimeformat'] = format_datetime
-
-
-if __name__ == '__main__':
-    app.run()
