@@ -13,5 +13,7 @@ create table product (
   author_id integer not null,
   url_product text not null,
   current_price text not null,
-  desired_price text not null
+  desired_price text not null,
+  submit_time integer,
+  price_path  text
 );

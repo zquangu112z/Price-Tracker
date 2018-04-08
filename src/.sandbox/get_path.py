@@ -72,3 +72,5 @@ ler-lhc4151blk-540ml-den-p1453915.html?spid=1454601&src=lp-locknlock"
     path = getPath(price, url)  # save to db
     print(checkPrice(url, path, "400.000"))  # run this task everyday
     print(checkPrice(url, path, "150.000VND"))
+
+    # @TODO: if TRUE, then send the notification to email
