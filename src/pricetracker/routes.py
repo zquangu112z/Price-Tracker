@@ -1,7 +1,7 @@
 from flask import request, session, url_for, redirect, \
     render_template, g, flash
 from werkzeug import check_password_hash, generate_password_hash
-
+import time
 
 from .base import app, get_author_id, get_db, get_user_id, query_db
 
@@ -27,8 +27,12 @@ def home():
         desired_price = request.form['desired_price']
         # email = request.form['email']
         query_str = "INSERT INTO product(author_id, url_product, current_price, \
-        desired_price) VALUES ('%s', '%s', '%s', '%s');" % (
-            author_id, url_product, current_price, desired_price)
+        desired_price, submit_time) VALUES ('%s', '%s', '%s', '%s', %d);" % (
+            author_id,
+            url_product,
+            current_price,
+            desired_price,
+            int(time.time()))
         try:
             print(query_str)
 
