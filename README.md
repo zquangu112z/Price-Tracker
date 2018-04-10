@@ -1,15 +1,17 @@
 ## Tracking Price App
 - Status: developing
 
-## Deploy 
-
+## Setup project
+### Install dependencies
 ```bash
-export MAIL_USERNAME=<MAIL_USERNAME>
-export MAIL_PASSWORD=<MAIL_PASSWORD>
-make deploy
+make setup-dependencies
+```
+### Init database
+```bash
+make initdb
 ```
 
-or 
+## Deploy 
 ```bash
 export MAIL_USERNAME=<MAIL_USERNAME>
 export MAIL_PASSWORD=<MAIL_PASSWORD>
