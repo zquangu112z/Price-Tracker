@@ -1,5 +1,5 @@
-deploy:
-	pip install --editable . && export FLASK_APP=pricetracker && flask run
+# deploy:
+# 	pip install --editable . && export FLASK_APP=pricetracker && flask run
 
 setup-dependencies:
 	pip install -r requirements.txt

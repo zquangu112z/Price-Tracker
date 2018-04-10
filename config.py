@@ -1,7 +1,9 @@
 import os
 
+os.path.abspath(__file__)
+
 # configuration
-DATABASE = '/home/zquangu112z/pricetracker.db'
+DATABASE = '/Users/kilia/Desktop/pricetracker.db'
 PER_PAGE = 30
 DEBUG = True
 SECRET_KEY = b'_5#yjkhdjkfhasd2L"F4Q8z\n\xec]/'

@@ -1,7 +1,6 @@
 from sqlite3 import dbapi2 as sqlite3
-from flask import Flask, session, \
-    g, _app_ctx_stack
 from celery import Celery
+from flask import Flask, session, g, _app_ctx_stack
 from flask_mail import Mail
 
 
