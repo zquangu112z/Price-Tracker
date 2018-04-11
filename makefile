@@ -9,3 +9,7 @@ initdb:
 	export FLASK_APP=src/pricetracker/base.py && flask initdb
 
 
+rsync:
+	rsync -r ./ kilia@192.168.100.243:~/NicholasUbuntu/Price-Tracker/
+
+

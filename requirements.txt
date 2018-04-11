@@ -1,4 +1,4 @@
 uwsgi
-Flask
+flask
 celery
-Flask-Mail
+flask-mail
