@@ -2,6 +2,12 @@ from urllib.request import urlopen
 from lxml import etree
 from io import BytesIO
 import re
+import smtplib
+from string import Template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import os
+import logging as logger
 
 
 def get_Path(price, url_product):
@@ -48,12 +54,22 @@ def checkPrice(url_product, path, desired_price):
     # nomalize desired price
     desired_price = getNumericPrice(desired_price)
 
-    print(">>>>>>>Current: ", current_price,  ". Desired: ", desired_price)
+    print(">>>>>>>Current: ", current_price, ". Desired: ", desired_price)
 
     if current_price <= desired_price:
         return True
     else:
         return False
+
+
+def getCurrentPrice(url_product, path):
+    page = urlopen(url_product)
+    parser = etree.HTMLParser()
+    tree = etree.parse(BytesIO(page.read()), parser)
+
+    # get current price
+    current_price = getNumericPrice(tree.xpath(path)[0].text)
+    return current_price
 
 
 def getNumericPrice(price):
@@ -64,13 +80,65 @@ def getNumericPrice(price):
     return re.findall(r'\d+', price)[0]
 
 
-if __name__ == "__main__":
-    url = "https://tiki.vn/ly-giu-nhiet-bang-thep-khong-gi-lock-lock-clip-tumb\
-ler-lhc4151blk-540ml-den-p1453915.html?spid=1454601&src=lp-locknlock"
-    price = "199.000"
+def read_template(filename):
+    with open(filename, 'r', encoding='utf-8') as template_file:
+        template_file_content = template_file.read()
+    return Template(template_file_content)
 
-    path = getPath(price, url)  # save to db
-    print(checkPrice(url, path, "400.000"))  # run this task everyday
-    print(checkPrice(url, path, "150.000VND"))
+
+def get_mail_instance(username,
+                      password,
+                      host='smtp.googlemail.com',
+                      port=587):
+    s = smtplib.SMTP(host, port)
+    s.starttls()
+    s.login(username, password)
+    return s
+
+
+def send_mail(s, message_template, sender, receiver):
+    # @TODO: refactor this function arcoding to tifl
+    try:
+        msg = MIMEMultipart()
+        # add in the actual person name to the message template
+        message = message_template.substitute(
+            PRODUCT_URL=url,
+            PRICE=getCurrentPrice(url, path))
+
+        # setup the parameters of the message
+        msg['From'] = sender
+        msg['To'] = receiver
+        msg['Subject'] = "The product you are watching has down its price."
+
+        # add in the message body
+        msg.attach(MIMEText(message, 'plain'))
+
+        # send the message via the server set up earlier.
+        s.send_message(msg)
+        logger.warning("Send mail successful to receiver {}".format(receiver))
+    except Exception as e:
+        raise e
+
+
+if __name__ == "__main__":
+    url = "https://tiki.vn/ly-giu-nhiet-bang-thep-khong-gi-lock-lock-clip-\
+tumbler-lhc4151slv-540ml-bac-p1453913.html?src=recently-viewed"
+    price = "396.000"
+
+    path = getPath(price, url)  # @TODO: save path to db
+    checked = checkPrice(url, path, "400.000")
+    print(checked)  # run this task everyday
+    # You can also pass the price with currency like this way
+    # print(checkPrice(url, path, "150.000VND"))
 
     # @TODO: if TRUE, then send the notification to email
+    # this task is notify the current price
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    s = get_mail_instance(MAIL_USERNAME, MAIL_PASSWORD)
+
+    message_template = read_template('message_letbuyit.txt')
+
+    receiver = "zquangu112z@gmail.com"
+
+    send_mail(s, message_template, MAIL_USERNAME, receiver)

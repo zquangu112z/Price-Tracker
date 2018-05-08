@@ -1,0 +1,8 @@
+Hey dude, 
+
+I'd like to notify you that the product you followed has down its price.
+
+Product URL: ${PRODUCT_URL}
+Current price: ${PRICE}
+
+Let's cope it!
