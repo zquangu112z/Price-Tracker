@@ -1,4 +1,4 @@
-uwsgi
 flask
 celery
 flask-mail
+lxml

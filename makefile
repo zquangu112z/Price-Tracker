@@ -3,6 +3,7 @@
 
 setup-dependencies:
 	pip install -r requirements.txt
+	sudo pip install -r requirements_global.txt
 	npm install
 
 initdb:

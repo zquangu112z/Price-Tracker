@@ -10,3 +10,5 @@ sandbox/
 .benchmarks
 .eggs/
 Pipfile*
+node_modules/
+package-lock.json
