@@ -35,7 +35,9 @@ def close_database(exception):
 def init_db():
     """Initializes the database."""
     db = get_db()
-    with app.open_resource('schema.sql', mode='r') as f:
+    with app.open_resource(
+            app.config['DATABASE_SCHEMA_FILENAME'],
+            mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 
