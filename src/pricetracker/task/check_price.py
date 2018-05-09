@@ -1,6 +1,6 @@
 from pricetracker.celery_worker import app
 import sqlite3
-from pricetracker.task.helper import getCurrentPrice, send_mail,\
+from pricetracker.helper import getCurrentPrice, send_mail,\
     get_mail_instance, read_template
 import os
 
