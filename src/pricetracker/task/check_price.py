@@ -1,4 +1,4 @@
-from pricetracker.celery_worker import app
+from pricetracker.celery_worker import celery_app
 import sqlite3
 from pricetracker.helper import getCurrentPrice, send_mail,\
     get_mail_instance, read_template
@@ -17,12 +17,12 @@ class ExternalDataContext():
         self.conn.close()
 
 
-@app.task
+@celery_app.task
 def say_hello():
     print("Hello Ngu Quang Truong")
 
 
-@app.task
+@celery_app.task
 def check():
     # Get email instance
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')

@@ -1,8 +1,8 @@
-from pricetracker.celery_worker import app
+from pricetracker.celery_worker import celery_app
 from pricetracker.task.check_price import say_hello, check
 
 
-@app.on_after_configure.connect
+@celery_app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     # sender.add_periodic_task(2.0, say_hello.s(),
     #                          name='Say hello every 5 seconds')
