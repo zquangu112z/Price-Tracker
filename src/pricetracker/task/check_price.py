@@ -3,6 +3,7 @@ import sqlite3
 from pricetracker.helper import getCurrentPrice, send_mail,\
     get_mail_instance, read_template
 import os
+from pricetracker.base import app, query_db
 
 
 class ExternalDataContext():
@@ -24,6 +25,14 @@ def say_hello():
 
 @celery_app.task
 def check():
+    # Test
+    products = query_db('select * from product')
+    for product in products:
+        url_product = product[2]
+        print(url_product)
+
+
+'''
     # Get email instance
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
@@ -53,3 +62,4 @@ def check():
                 # @TODO: function send_mail must be failed \
                 # due to the un formatted message_template
                 send_mail(s, message_template, MAIL_USERNAME, receiver)
+'''

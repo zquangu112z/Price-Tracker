@@ -19,7 +19,12 @@ def get_db():
     current application context.
     """
     top = _app_ctx_stack.top
+    # Support calling this function from check_price.py @TODO: document it
+    if not top:
+        top = app.app_context()
+
     if not hasattr(top, 'sqlite_db'):
+        print(">>>>>>>>>>>>>> ", app.config['DATABASE'])
         top.sqlite_db = sqlite3.connect(app.config['DATABASE'])
         top.sqlite_db.row_factory = sqlite3.Row
     return top.sqlite_db
