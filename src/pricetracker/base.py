@@ -2,10 +2,11 @@ from celery import Celery
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, session, g, _app_ctx_stack
 from flask_mail import Mail
+from . import my_config
 
 
 app = Flask(__name__)
-app.config.from_object("config")
+app.config.from_object(my_config)
 
 mail = Mail(app)
 
