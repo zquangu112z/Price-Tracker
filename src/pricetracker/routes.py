@@ -4,6 +4,7 @@ from werkzeug import check_password_hash, generate_password_hash
 import time
 
 from .base import app, get_author_id, get_db, get_user_id, query_db
+from .helper import getPath
 
 
 @app.route('/')
@@ -25,14 +26,20 @@ def home():
         url_product = request.form['url_product']
         current_price = request.form['current_price']
         desired_price = request.form['desired_price']
-        # email = request.form['email']
+        price_path = getPath(current_price, url_product)
+        if not price_path:
+            not_found_msg = "Please re-check the current price, \
+we cannot allocate it"
+            return render_template('home.html', status=not_found_msg)
         query_str = "INSERT INTO product(author_id, url_product, current_price, \
-        desired_price, submit_time) VALUES ('%s', '%s', '%s', '%s', %d);" % (
+        desired_price, submit_time, price_path) VALUES ('%s', '%s', '%s'\
+        , '%s', %d, '%s');" % (
             author_id,
             url_product,
             current_price,
             desired_price,
-            int(time.time()))
+            int(time.time()),
+            price_path)
         try:
             print(query_str)
 

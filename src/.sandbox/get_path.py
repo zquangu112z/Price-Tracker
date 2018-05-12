@@ -39,7 +39,7 @@ def getPath(price, url_product):
     tree = etree.parse(BytesIO(page.read()), parser)
 
     for e in tree.iter():
-        if e.text and price in e.text:
+        if e.text and getNumericPrice(price) in e.text:
             path = tree.getpath(e)
             return path
 
@@ -121,24 +121,26 @@ def send_mail(s, message_template, sender, receiver):
 
 
 if __name__ == "__main__":
-    url = "https://tiki.vn/ly-giu-nhiet-bang-thep-khong-gi-lock-lock-clip-\
-tumbler-lhc4151slv-540ml-bac-p1453913.html?src=recently-viewed"
-    price = "396.000"
+    url = "https://tiki.vn/ly-giu-nhiet-thep-khong-gi-bumper-tumbler-lock-l\
+ock-lhc4139slv-550ml-bac-p1726597.html?src=search-ltr-experiment-1&q=lock+and+\
+lock+tumbler"
+    price = "229.000 ₫"
 
     path = getPath(price, url)  # @TODO: save path to db
-    checked = checkPrice(url, path, "400.000")
-    print(checked)  # run this task everyday
-    # You can also pass the price with currency like this way
-    # print(checkPrice(url, path, "150.000VND"))
+    print(type(path))
+    # checked = checkPrice(url, path, "400.000")
+    # print(checked)  # run this task everyday
+    # # You can also pass the price with currency like this way
+    # # print(checkPrice(url, path, "150.000VND"))
 
-    # @TODO: if TRUE, then send the notification to email
-    # this task is notify the current price
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    s = get_mail_instance(MAIL_USERNAME, MAIL_PASSWORD)
+    # # @TODO: if TRUE, then send the notification to email
+    # # this task is notify the current price
+    # MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    # MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    # s = get_mail_instance(MAIL_USERNAME, MAIL_PASSWORD)
 
-    message_template = read_template('message_letbuyit.txt')
+    # message_template = read_template('message_letbuyit.txt')
 
-    receiver = "zquangu112z@gmail.com"
+    # receiver = "zquangu112z@gmail.com"
 
-    send_mail(s, message_template, MAIL_USERNAME, receiver)
+    # send_mail(s, message_template, MAIL_USERNAME, receiver)
