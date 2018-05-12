@@ -39,7 +39,7 @@ def getPath(price, url_product):
     tree = etree.parse(BytesIO(page.read()), parser)
 
     for e in tree.iter():
-        if e.text and getNumericPrice(price) in e.text:
+        if e.text and price in e.text:
             path = tree.getpath(e)
             return path
 

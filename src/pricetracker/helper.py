@@ -73,7 +73,7 @@ def getCurrentPrice(url_product, path):
     tree = etree.parse(BytesIO(page.read()), parser)
 
     # get current price
-    current_price = getNumericPrice(tree.xpath(path)[0].text)
+    current_price = tree.xpath(path)[0].text
     return current_price
 
 
@@ -83,7 +83,10 @@ def getNumericPrice(price):
     '''
     price = str(price)
     price = price.replace(".", "")
-    return re.findall(r'\d+', price)[0]
+    try:
+        return re.findall(r'\d+', price)[0]
+    except IndexError:
+        return price
 
 
 def read_template(filename):
