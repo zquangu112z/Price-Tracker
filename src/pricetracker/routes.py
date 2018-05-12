@@ -4,7 +4,7 @@ from werkzeug import check_password_hash, generate_password_hash
 import time
 
 from .base import app, get_author_id, get_db, get_user_id, query_db
-from .helper import getPath
+from .helper import getPath, nomalizePrice
 
 
 @app.route('/')
@@ -26,20 +26,22 @@ def home():
         url_product = request.form['url_product']
         submited_price = request.form['current_price']
         desired_price = request.form['desired_price']
+        print(">>>>>>>>>>>>>", submited_price, ">>>>>>>>", desired_price)
         price_path = getPath(submited_price, url_product)
         if not price_path:
             not_found_msg = "Please re-check the current price, \
 we cannot allocate it"
             return render_template('home.html', status=not_found_msg)
         query_str = "INSERT INTO product(author_id, url_product, submited_price, \
-        desired_price, submit_time, price_path) VALUES ('%s', '%s', '%s'\
-        , '%s', %d, '%s');" % (
+        desired_price, submit_time, price_path, isdone) VALUES ('%s', '%s', \
+        '%s', '%s', %d, '%s', %d);" % (
             author_id,
             url_product,
             submited_price,
             desired_price,
             int(time.time()),
-            price_path)
+            price_path,
+            0)  # 0 means the task has not been done yet
         try:
             print(query_str)
 

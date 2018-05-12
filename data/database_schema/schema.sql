@@ -15,5 +15,6 @@ create table product (
   submited_price text not null,
   desired_price text not null,
   submit_time integer,
-  price_path  text
+  price_path  text,
+  isdone integer
 );

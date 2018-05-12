@@ -46,6 +46,7 @@ def getPath(price, url_product):
 
 
 def checkPrice(url_product, path, desired_price):
+    # It is outdated
     page = urlopen(url_product)
     parser = etree.HTMLParser()
     tree = etree.parse(BytesIO(page.read()), parser)
@@ -64,7 +65,7 @@ def checkPrice(url_product, path, desired_price):
 
 
 def isDown(current_price, desired_price):
-    return int(getNumericPrice(current_price)) < int(getNumericPrice(desired_price))
+    return getNumericPrice(current_price) < getNumericPrice(desired_price)
 
 
 def getCurrentPrice(url_product, path):
@@ -74,19 +75,26 @@ def getCurrentPrice(url_product, path):
 
     # get current price
     current_price = tree.xpath(path)[0].text
+    current_price = nomalizePrice(current_price)
     return current_price
+
+
+def nomalizePrice(price):
+    '''
+        Remove currency and space
+    '''
+    # return re.findall(r'(\d|\.|\,)+', price)[0]
+    return re.findall(r'((\d|\.|\,)+)', price)[0]
 
 
 def getNumericPrice(price):
     '''
-        Nomalize price @TODO
+        Nomalize price
     '''
     price = str(price)
     price = price.replace(".", "")
-    try:
-        return re.findall(r'\d+', price)[0]
-    except IndexError:
-        return price
+    price = price.replace(",", "")
+    return int(price)
 
 
 def read_template(filename):
@@ -105,15 +113,10 @@ def get_mail_instance(username,
     return s
 
 
-def send_mail(s, message_template, sender, receiver, url, current_price):
+def send_mail(s, message, sender, receiver):
     # @TODO: refactor this function arcoding to tifl
     try:
         msg = MIMEMultipart()
-        # add in the actual person name to the message template
-        message = message_template.substitute(
-            PRODUCT_URL=url,
-            PRICE=current_price
-        )
 
         # setup the parameters of the message
         msg['From'] = sender
