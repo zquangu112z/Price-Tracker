@@ -39,7 +39,8 @@ def getPath(price, url_product):
     tree = etree.parse(BytesIO(page.read()), parser)
 
     for e in tree.iter():
-        if e.text and getNumericPrice(price) in e.text:
+        # @TODO: normalize price
+        if e.text and price in e.text:
             path = tree.getpath(e)
             return path
 
@@ -57,9 +58,13 @@ def checkPrice(url_product, path, desired_price):
     print(">>>>>>>Current: ", current_price, ". Desired: ", desired_price)
 
     if current_price <= desired_price:
-        return True
+        return 7
     else:
         return False
+
+
+def isDown(current_price, desired_price):
+    return int(getNumericPrice(current_price)) < int(getNumericPrice(desired_price))
 
 
 def getCurrentPrice(url_product, path):
@@ -74,8 +79,9 @@ def getCurrentPrice(url_product, path):
 
 def getNumericPrice(price):
     '''
-        Nomalize price
+        Nomalize price @TODO
     '''
+    price = str(price)
     price = price.replace(".", "")
     return re.findall(r'\d+', price)[0]
 
@@ -96,14 +102,15 @@ def get_mail_instance(username,
     return s
 
 
-def send_mail(s, message_template, sender, receiver):
+def send_mail(s, message_template, sender, receiver, url, current_price):
     # @TODO: refactor this function arcoding to tifl
     try:
         msg = MIMEMultipart()
         # add in the actual person name to the message template
         message = message_template.substitute(
             PRODUCT_URL=url,
-            PRICE=getCurrentPrice(url, path))
+            PRICE=current_price
+        )
 
         # setup the parameters of the message
         msg['From'] = sender

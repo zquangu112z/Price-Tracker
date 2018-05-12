@@ -1,21 +1,10 @@
 from pricetracker.celery_worker import celery_app
 import sqlite3
 from pricetracker.helper import getCurrentPrice, send_mail,\
-    get_mail_instance, read_template
+    get_mail_instance, read_template, isDown
 import os
 from pricetracker.base import app, query_db
-
-
-class ExternalDataContext():
-    def __init__(self, db_filepath):
-        self.conn = sqlite3.connect(db_filepath)
-
-    def __enter__(self):
-        self.c = self.conn.cursor()
-        return self.c
-
-    def __exit__(self, *args):
-        self.conn.close()
+from collections import namedtuple
 
 
 @celery_app.task
@@ -25,14 +14,6 @@ def say_hello():
 
 @celery_app.task
 def check():
-    # Test
-    products = query_db('select * from product')
-    for product in products:
-        url_product = product[2]
-        print(url_product)
-
-
-'''
     # Get email instance
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
@@ -41,6 +22,24 @@ def check():
     message_template = read_template(
         'data/message_template/message_letbuyit.txt')
 
+    ProductRecord = namedtuple('ProductRecord', 'id, author_id, url_product, \
+        submited_price, desired_price, submit_time, price_path')
+    products = query_db('select * from product')
+    for product in map(ProductRecord._make, products):
+        print(product.submited_price)
+        current_price = getCurrentPrice(
+            product.url_product, product.price_path)
+        if isDown(current_price, product.desired_price):
+            # Send mail
+            print("the pprice is {}".format(current_price))
+            receiver = query_db('select email from user \
+where user_id = {}'.format(product.author_id))
+            print("Send email to {}".format(receiver[0][0]))
+            send_mail(s, message_template, MAIL_USERNAME,
+                      receiver[0][0], product.url_product, current_price)
+
+
+'''
     # Connect db
     with ExternalDataContext('pricetracker.db') as c:
         products_query_string = 'select * from product'

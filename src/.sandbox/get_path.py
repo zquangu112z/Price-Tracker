@@ -121,13 +121,12 @@ def send_mail(s, message_template, sender, receiver):
 
 
 if __name__ == "__main__":
-    url = "https://tiki.vn/ly-giu-nhiet-thep-khong-gi-bumper-tumbler-lock-l\
-ock-lhc4139slv-550ml-bac-p1726597.html?src=search-ltr-experiment-1&q=lock+and+\
-lock+tumbler"
-    price = "229.000 ₫"
+    url = "https://www.lazada.vn/products/combo-2-kem-danh-rang-closeup-white-attraction-natural-glow-180g-va-2-ban-chai-danh-rang-charcol-tang-1-durex-fetherlite-12-bao-i209600911-s261456452.html?spm=a2o4n.home.flashSale.4.19056afe7LuGzf&search=1&mp=1&scm=1003.4.icms-zebra-5000410-2735658.ITEM_209600911_2393200"
+    price = "135.000"
 
     path = getPath(price, url)  # @TODO: save path to db
-    print(type(path))
+    print(path)
+    print(getCurrentPrice(url, path))
     # checked = checkPrice(url, path, "400.000")
     # print(checked)  # run this task everyday
     # # You can also pass the price with currency like this way

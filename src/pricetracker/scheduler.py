@@ -6,5 +6,5 @@ from pricetracker.task.check_price import say_hello, check
 def setup_periodic_tasks(sender, **kwargs):
     # sender.add_periodic_task(2.0, say_hello.s(),
     #                          name='Say hello every 5 seconds')
-    sender.add_periodic_task(5.0, check.s(),
+    sender.add_periodic_task(1800.0, check.s(),
                              name='Check price')

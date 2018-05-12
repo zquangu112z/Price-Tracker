@@ -24,7 +24,6 @@ def get_db():
         top = app.app_context()
 
     if not hasattr(top, 'sqlite_db'):
-        print(">>>>>>>>>>>>>> ", app.config['DATABASE'])
         top.sqlite_db = sqlite3.connect(app.config['DATABASE'])
         top.sqlite_db.row_factory = sqlite3.Row
     return top.sqlite_db
