@@ -8,8 +8,12 @@
   {% for following_product in following_products %}
     <li>
       <p><srong>Product: </srong><span><a href="{{ following_product.url_product }}">{{ following_product.url_product }}</a></span></p>
-      <p><srong>Submitted Price: </srong><span>{{ following_product.current_price }}</span></p>
+      <p><srong>Submitted Price: </srong><span>{{ following_product.submited_price }}</span></p>
       <p><srong>Desired Price:</srong><span> {{ following_product.desired_price }}</span></p>
+      <form action="stop_follow" method="post">
+        <input type="hidden" name="product_id" value="{{following_product.id}}">
+        <input type="submit" value="Stop" class="btstop">
+      </form>
     </li>
   {% endfor %}
   </ul>

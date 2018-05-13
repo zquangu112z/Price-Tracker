@@ -22,9 +22,9 @@ modd
 ## Run scheduler
 ### Terminal 1
 ```bash
-PYTHONPATH=src celery -A pricetracker.celery worker
+make worker
 ```
 ### Terminal 2
 ```bash
-PYTHONPATH=src celery -A pricetracker.celery beat
+make beat
 ```

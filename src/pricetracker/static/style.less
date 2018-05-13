@@ -1,3 +1,5 @@
+@red: #FF0000;
+
 body {
     background: #CAECE9;
     font-family: 'Trebuchet MS', sans-serif;
@@ -36,6 +38,10 @@ input[type="submit"], button {
     color: white;
 }
 
+input.btstop {
+    background: @red;
+    float: right;
+}
 
 div.page {
     background: white;
@@ -109,6 +115,7 @@ div.page ul.following_products li {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     min-height: 48px;
+    overflow: auto;
 }
 
 div.page ul.following_products p {

@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=kilia
+Group=www-data
+WorkingDirectory=/home/kilia/NicholasUbuntu/Price-Tracker
+Environment="PATH=/home/kilia/.virtualenv/tracker-env"
+ExecStart=/usr/local/bin/uwsgi --socket 127.0.0.1:5000 --protocol=http --ini project.ini -H /h$
+
+[Install]
+WantedBy=multi-user.target

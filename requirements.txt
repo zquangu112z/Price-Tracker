@@ -1,3 +1,5 @@
+redis
 flask
 celery
-Flask-Mail
+flask-mail
+lxml

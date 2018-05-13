@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Price Tracking{% endblock %}
 {% block body %}
-  <h2>Let me help you tracking the price!</h2>
+  <h2>Let me help you track the price!</h2>
   {% if status %}<div class="error"><strong>Status:</strong> {{ status }}</div>{% endif %}
   <form action="" method="post">
     <dl>
@@ -14,9 +14,9 @@
       <dt>Desired Price:
       <dd><input type="text" name="desired_price" size="30" value="{{ request.form.desired_price }}">
 
-      <dt>Duration (days):
-      <dd><input type="text" name="duration" size="30" value="{{ request.form.duration }}">
-    </dl>
+      <!-- <dt>Duration (days):
+      <dd><input type="text" name="duration" size="30" value="{{ request.form.duration }}">  -->  
+      </dl>
     <div class="actions"><input type="submit" value="Submit"></div>
   </form>
 {% endblock %}

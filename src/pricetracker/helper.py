@@ -6,27 +6,23 @@ import smtplib
 from string import Template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
 import logging as logger
+from pricetracker.base import alter_db
 
 
-def get_Path(price, url_product):
-    '''
-        Testing purpose only
-    '''
-    page = urlopen(url_product)
-
-    parser = etree.HTMLParser()
-    tree = etree.parse(BytesIO(page.read()), parser)
-
-    for e in tree.iter():
-        if e.text and price in e.text:
-            path = tree.getpath(e)
-            print("PATH: ", path)
-            current_price = getNumericPrice(tree.xpath(path)[0].text)
-
-            print("CONTENT: ", current_price)
-            return
+def markTaskDone(product_id):
+    # isdone = 0: following
+    # isdone = 1: the price is down to to desired value
+    # @TODO: push it to celery
+    try:
+        alter_db(
+            'update product set isdone = 1 where id = {}'.format(product_id))
+        logger.info(
+            "The product have id {} have been \
+marked isdone = 1".format(product_id))
+    except Exception as e:
+        logger.error("[E002] at markTaskDone(product_id")
+        raise e
 
 
 def getPath(price, url_product):
@@ -39,12 +35,14 @@ def getPath(price, url_product):
     tree = etree.parse(BytesIO(page.read()), parser)
 
     for e in tree.iter():
+        # @TODO: normalize price
         if e.text and price in e.text:
             path = tree.getpath(e)
             return path
 
 
 def checkPrice(url_product, path, desired_price):
+    # It is outdated
     page = urlopen(url_product)
     parser = etree.HTMLParser()
     tree = etree.parse(BytesIO(page.read()), parser)
@@ -57,9 +55,13 @@ def checkPrice(url_product, path, desired_price):
     print(">>>>>>>Current: ", current_price, ". Desired: ", desired_price)
 
     if current_price <= desired_price:
-        return True
+        return 7
     else:
         return False
+
+
+def isDown(current_price, desired_price):
+    return getNumericPrice(current_price) < getNumericPrice(desired_price)
 
 
 def getCurrentPrice(url_product, path):
@@ -68,16 +70,27 @@ def getCurrentPrice(url_product, path):
     tree = etree.parse(BytesIO(page.read()), parser)
 
     # get current price
-    current_price = getNumericPrice(tree.xpath(path)[0].text)
+    current_price = tree.xpath(path)[0].text
+    current_price = nomalizePrice(current_price)
     return current_price
+
+
+def nomalizePrice(price):
+    '''
+        Remove currency and space
+    '''
+    # return re.findall(r'(\d|\.|\,)+', price)[0]
+    return re.findall(r'((\d|\.|\,)+)', price)[0][0]
 
 
 def getNumericPrice(price):
     '''
         Nomalize price
     '''
+    price = str(price)
     price = price.replace(".", "")
-    return re.findall(r'\d+', price)[0]
+    price = price.replace(",", "")
+    return int(price)
 
 
 def read_template(filename):
@@ -96,14 +109,10 @@ def get_mail_instance(username,
     return s
 
 
-def send_mail(s, message_template, sender, receiver):
+def send_mail(s, message, sender, receiver):
     # @TODO: refactor this function arcoding to tifl
     try:
         msg = MIMEMultipart()
-        # add in the actual person name to the message template
-        message = message_template.substitute(
-            PRODUCT_URL=url,
-            PRICE=getCurrentPrice(url, path))
 
         # setup the parameters of the message
         msg['From'] = sender
@@ -118,28 +127,3 @@ def send_mail(s, message_template, sender, receiver):
         logger.warning("Send mail successful to receiver {}".format(receiver))
     except Exception as e:
         raise e
-
-
-if __name__ == "__main__":
-    url = "https://www.lazada.vn/products/combo-2-kem-danh-rang-closeup-white-attraction-natural-glow-180g-va-2-ban-chai-danh-rang-charcol-tang-1-durex-fetherlite-12-bao-i209600911-s261456452.html?spm=a2o4n.home.flashSale.4.19056afe7LuGzf&search=1&mp=1&scm=1003.4.icms-zebra-5000410-2735658.ITEM_209600911_2393200"
-    price = "135.000"
-
-    path = getPath(price, url)  # @TODO: save path to db
-    print(path)
-    print(getCurrentPrice(url, path))
-    # checked = checkPrice(url, path, "400.000")
-    # print(checked)  # run this task everyday
-    # # You can also pass the price with currency like this way
-    # # print(checkPrice(url, path, "150.000VND"))
-
-    # # @TODO: if TRUE, then send the notification to email
-    # # this task is notify the current price
-    # MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    # MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    # s = get_mail_instance(MAIL_USERNAME, MAIL_PASSWORD)
-
-    # message_template = read_template('message_letbuyit.txt')
-
-    # receiver = "zquangu112z@gmail.com"
-
-    # send_mail(s, message_template, MAIL_USERNAME, receiver)

@@ -32,6 +32,10 @@ button {
   -webkit-border-radius: 2px;
   color: white;
 }
+input.btstop {
+  background: #FF0000;
+  float: right;
+}
 div.page {
   background: white;
   border: 1px solid #6ECCC4;
@@ -95,6 +99,7 @@ div.page ul.following_products li {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   min-height: 48px;
+  overflow: auto;
 }
 div.page ul.following_products p {
   margin: 0;
