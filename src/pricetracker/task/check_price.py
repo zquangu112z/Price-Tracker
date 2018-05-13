@@ -1,6 +1,6 @@
 from pricetracker.celery_worker import celery_app
 from pricetracker.helper import getCurrentPrice, send_mail,\
-    get_mail_instance, read_template, isDown, getNumericPrice
+    get_mail_instance, read_template, isDown, markTaskDone
 import os
 from pricetracker.base import query_db
 from collections import namedtuple
@@ -44,6 +44,7 @@ where user_id = {}'.format(product.author_id))
                       receiver[0][0])
 
             # Mark as task done in the database
-            query_db(
-                'update product set isdone = 1 where id = {}'.format(
-                    product.id))
+            markTaskDone(product.id)
+            # query_db(
+            #     'update product set isdone = 1 where id = {}'.format(
+            #         product.id))

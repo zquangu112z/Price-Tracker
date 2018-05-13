@@ -66,6 +66,12 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 
+def alter_db(query):
+    db = get_db()
+    db.execute(query)
+    db.commit()
+
+
 @app.before_request
 def before_request():
     g.user = None

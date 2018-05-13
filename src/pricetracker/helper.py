@@ -6,27 +6,23 @@ import smtplib
 from string import Template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
 import logging as logger
+from pricetracker.base import alter_db
 
 
-def get_Path(price, url_product):
-    '''
-        Testing purpose only
-    '''
-    page = urlopen(url_product)
-
-    parser = etree.HTMLParser()
-    tree = etree.parse(BytesIO(page.read()), parser)
-
-    for e in tree.iter():
-        if e.text and price in e.text:
-            path = tree.getpath(e)
-            print("PATH: ", path)
-            current_price = getNumericPrice(tree.xpath(path)[0].text)
-
-            print("CONTENT: ", current_price)
-            return
+def markTaskDone(product_id):
+    # isdone = 0: following
+    # isdone = 1: the price is down to to desired value
+    # @TODO: push it to celery
+    try:
+        alter_db(
+            'update product set isdone = 1 where id = {}'.format(product_id))
+        logger.info(
+            "The product have id {} have been \
+marked isdone = 1".format(product_id))
+    except Exception as e:
+        logger.error("[E002] at markTaskDone(product_id")
+        raise e
 
 
 def getPath(price, url_product):

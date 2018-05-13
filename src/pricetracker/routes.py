@@ -4,7 +4,8 @@ from werkzeug import check_password_hash, generate_password_hash
 import time
 
 from .base import app, get_author_id, get_db, get_user_id, query_db
-from .helper import getPath, nomalizePrice
+from .helper import getPath, nomalizePrice, markTaskDone
+import logging as logger
 
 
 @app.route('/')
@@ -121,7 +122,7 @@ def user_following():
     user_id = get_author_id()
     if user_id:
         following_product = query_db(
-            "SELECT * FROM product as p where p.author_id=?",
+            "SELECT * FROM product as p where p.author_id=? and p.isdone=0",
             [user_id])
         print("user {} is following {} products".format(
             user_id, len(following_product)))
@@ -131,9 +132,18 @@ def user_following():
                            following_products=following_product)
 
 
-@app.route('/stop_follow/<product_id>', methods=['POST'])
+@app.route('/stop_follow', methods=['GET', 'POST'])
 def stop_follow():
-    return user_following()
+    if not g.user:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        product_id = request.form.get('product_id')
+        logger.warn(">>>>>>>>>{}<<<<<<<<<".format(product_id))
+        markTaskDone(product_id)
+        # product_id = request.args.get('product_id')
+        # print(product_id)
+
+    return redirect(url_for('user_following'))
 
 
 @app.route('/logout')
@@ -142,3 +152,8 @@ def logout():
     flash('You were logged out')
     session.pop('user_id', None)
     return redirect(url_for('login'))
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
