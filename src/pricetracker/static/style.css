@@ -32,6 +32,9 @@ button {
   -webkit-border-radius: 2px;
   color: white;
 }
+input.btstop {
+  background: #FF0000;
+}
 div.page {
   background: white;
   border: 1px solid #6ECCC4;

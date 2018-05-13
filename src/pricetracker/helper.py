@@ -84,7 +84,7 @@ def nomalizePrice(price):
         Remove currency and space
     '''
     # return re.findall(r'(\d|\.|\,)+', price)[0]
-    return re.findall(r'((\d|\.|\,)+)', price)[0]
+    return re.findall(r'((\d|\.|\,)+)', price)[0][0]
 
 
 def getNumericPrice(price):

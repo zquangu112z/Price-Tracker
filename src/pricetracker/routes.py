@@ -24,8 +24,8 @@ def home():
     if request.method == 'POST':
         author_id = get_author_id()
         url_product = request.form['url_product']
-        submited_price = request.form['current_price']
-        desired_price = request.form['desired_price']
+        submited_price = nomalizePrice(request.form['current_price'])
+        desired_price = nomalizePrice(request.form['desired_price'])
         print(">>>>>>>>>>>>>", submited_price, ">>>>>>>>", desired_price)
         price_path = getPath(submited_price, url_product)
         if not price_path:
@@ -112,7 +112,7 @@ def register():
     return render_template('register.html', error=error)
 
 
-@app.route('/following')
+@app.route('/following', methods=['GET'])
 def user_following():
     """ List user's following products"""
     if not g.user:
@@ -123,11 +123,17 @@ def user_following():
         following_product = query_db(
             "SELECT * FROM product as p where p.author_id=?",
             [user_id])
-        print(">>>>>>>>>", len(following_product))
+        print("user {} is following {} products".format(
+            user_id, len(following_product)))
     else:
         redirect(url_for('login'))
     return render_template('following.html',
                            following_products=following_product)
+
+
+@app.route('/stop_follow/<product_id>', methods=['POST'])
+def stop_follow():
+    return user_following()
 
 
 @app.route('/logout')
