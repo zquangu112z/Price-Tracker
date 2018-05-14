@@ -10,9 +10,9 @@
       <p><srong>Product: </srong><span><a href="{{ following_product.url_product }}">{{ following_product.url_product }}</a></span></p>
       <p><srong>Submitted Price: </srong><span>{{ following_product.submited_price }}</span></p>
       <p><srong>Desired Price:</srong><span> {{ following_product.desired_price }}</span></p>
-      <form action="stop_follow" method="post">
+      <form action="stop_follow" method="post" class="form-stop-follow">
         <input type="hidden" name="product_id" value="{{following_product.id}}">
-        <input type="submit" value="Stop" class="btstop">
+        <button type="submit" class="btstop"><i class="far fa-trash-alt"></i> Stop</button>
       </form>
     </li>
   {% endfor %}

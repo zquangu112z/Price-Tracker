@@ -1,29 +1,46 @@
-<!doctype html>
-<title>{% block title %}Welcome{% endblock %} | Tracker</title>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+<!DOCTYPE doctype html>
+<title>
+    {% block title %}Welcome{% endblock %} | Tracker
+</title>
+<head>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css"></link>
+    <link crossorigin="anonymous" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" rel="stylesheet"></link>
+    <link rel="icon"  type="image/png" href="{{ url_for('static', filename='myicon.png') }}">
+</head>
 <div class="page">
-  <h1>PriceTracker</h1>
-  <div class="navigation">
-  {% if g.user %}
-    <a href="{{ url_for('home') }}">Home</a> |
-    <a href="{{ url_for('user_following') }}">My Following</a> |
-    <a href="{{ url_for('logout') }}">Sign out [{{ g.user.username }}]</a>
-  {% endif %}
-  </div>
-
-  {% with flashes = get_flashed_messages() %}
+    <h1>
+        PriceTracker
+    </h1>
+    <div class="navigation">
+        {% if g.user %}
+        <a href="{{ url_for('home') }}">
+            Home
+        </a>
+        |
+        <a href="{{ url_for('user_following') }}">
+            My Following
+        </a>
+        |
+        <a href="{{ url_for('logout') }}">
+            Sign out [{{ g.user.username }}]
+        </a>
+        {% endif %}
+    </div>
+    {% with flashes = get_flashed_messages() %}
     {% if flashes %}
-      <ul class="flashes">
-      {% for message in flashes %}
-        <li>{{ message }}
+    <ul class="flashes">
+        {% for message in flashes %}
+        <li>
+            {{ message }}
       {% endfor %}
-      </ul>
+        </li>
+    </ul>
     {% endif %}
   {% endwith %}
-  <div class="body">
-  {% block body %}{% endblock %}
-  </div>
-  <div class="footer">
-    &copy; Easier.Nicholas 2018
-  </div>
+    <div class="body">
+        {% block body %}{% endblock %}
+    </div>
+    <div class="footer">
+        © Easier.Nicholas 2018
+    </div>
 </div>
