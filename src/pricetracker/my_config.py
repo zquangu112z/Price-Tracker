@@ -1,13 +1,13 @@
 import os
 
-os.path.abspath(__file__)
+# os.path.abspath(__file__)
 
 # configuration
 DATABASE = 'pricetracker.db'
 PER_PAGE = 30
 DEBUG = True
 SECRET_KEY = b'_5#yjkhdjkfhasd2L"F4Q8z\n\xec]/'
-DATABASE_SCHEMA_FILENAME = 'data/database_schema/schema.sql'
+DATABASE_SCHEMA_FILENAME = '../../data/database_schema/schema.sql'
 
 # email server
 MAIL_SERVER = 'smtp.googlemail.com'

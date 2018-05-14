@@ -1,9 +1,11 @@
 from flask import request, session, url_for, redirect, \
     render_template, g, flash
 from werkzeug import check_password_hash, generate_password_hash
-
+import time
 
 from .base import app, get_author_id, get_db, get_user_id, query_db
+from .helper import getPath, nomalizePrice, markTaskDone
+import logging as logger
 
 
 @app.route('/')
@@ -23,12 +25,24 @@ def home():
     if request.method == 'POST':
         author_id = get_author_id()
         url_product = request.form['url_product']
-        current_price = request.form['current_price']
-        desired_price = request.form['desired_price']
-        # email = request.form['email']
-        query_str = "INSERT INTO product(author_id, url_product, current_price, \
-        desired_price) VALUES ('%s', '%s', '%s', '%s');" % (
-            author_id, url_product, current_price, desired_price)
+        submited_price = nomalizePrice(request.form['current_price'])
+        desired_price = nomalizePrice(request.form['desired_price'])
+        print(">>>>>>>>>>>>>", submited_price, ">>>>>>>>", desired_price)
+        price_path = getPath(submited_price, url_product)
+        if not price_path:
+            not_found_msg = "Please re-check the current price, \
+we cannot allocate it"
+            return render_template('home.html', status=not_found_msg)
+        query_str = "INSERT INTO product(author_id, url_product, submited_price, \
+        desired_price, submit_time, price_path, isdone) VALUES ('%s', '%s', \
+        '%s', '%s', %d, '%s', %d);" % (
+            author_id,
+            url_product,
+            submited_price,
+            desired_price,
+            int(time.time()),
+            price_path,
+            0)  # 0 means the task has not been done yet
         try:
             print(query_str)
 
@@ -99,7 +113,7 @@ def register():
     return render_template('register.html', error=error)
 
 
-@app.route('/following')
+@app.route('/following', methods=['GET'])
 def user_following():
     """ List user's following products"""
     if not g.user:
@@ -108,13 +122,28 @@ def user_following():
     user_id = get_author_id()
     if user_id:
         following_product = query_db(
-            "SELECT * FROM product as p where p.author_id=?",
+            "SELECT * FROM product as p where p.author_id=? and p.isdone=0",
             [user_id])
-        print(">>>>>>>>>", len(following_product))
+        print("user {} is following {} products".format(
+            user_id, len(following_product)))
     else:
         redirect(url_for('login'))
     return render_template('following.html',
                            following_products=following_product)
+
+
+@app.route('/stop_follow', methods=['GET', 'POST'])
+def stop_follow():
+    if not g.user:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        product_id = request.form.get('product_id')
+        logger.warn(">>>>>>>>>{}<<<<<<<<<".format(product_id))
+        markTaskDone(product_id)
+        # product_id = request.args.get('product_id')
+        # print(product_id)
+
+    return redirect(url_for('user_following'))
 
 
 @app.route('/logout')
@@ -123,3 +152,8 @@ def logout():
     flash('You were logged out')
     session.pop('user_id', None)
     return redirect(url_for('login'))
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404

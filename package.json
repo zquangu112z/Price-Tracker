@@ -1,0 +1,25 @@
+{
+  "name": "price-tracker",
+  "version": "1.0.0",
+  "description": "- Status: developing",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zquangu112z/Price-Tracker.git"
+  },
+  "author": "Nicholas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zquangu112z/Price-Tracker/issues"
+  },
+  "homepage": "https://github.com/zquangu112z/Price-Tracker#readme",
+  "dependencies": {
+    "less": "^3.0.1"
+  }
+}
